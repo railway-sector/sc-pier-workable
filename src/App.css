@@ -128,6 +128,7 @@ calcite-tabs {
 
 ::-webkit-scrollbar {
   width: 5px;
+  display: none;
 }
 
 /* Track */

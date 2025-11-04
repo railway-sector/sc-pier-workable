@@ -9,7 +9,6 @@ import "@arcgis/map-components/components/arcgis-legend";
 import "@arcgis/map-components/components/arcgis-basemap-gallery";
 import "@arcgis/map-components/components/arcgis-layer-list";
 import "@arcgis/map-components/components/arcgis-expand";
-import "@arcgis/map-components/components/arcgis-placement";
 import "@arcgis/map-components/components/arcgis-compass";
 import "@arcgis/map-components/components/arcgis-print";
 import {
@@ -52,7 +51,6 @@ import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 
 import { MyContext } from "../App";
 import {
-  contractPackageNamesList,
   home_center,
   home_rotation,
   home_scale,
@@ -68,6 +66,7 @@ function MapPanel() {
   // Main Map
   const [mapView, setMapView] = useState();
   const arcgisMap = document.querySelector("#arcgis-map");
+  const arcgisOverviewMap = document.querySelector("#arcgis-overview-map");
 
   // Strip Map
   const [selectedStrip, setSelectedStrip] = useState(null);
@@ -151,6 +150,20 @@ function MapPanel() {
       arcgisMapLegend.layerInfos = layerInfos;
       arcgisMapLegend.hideLayersNotInCurrentView = false;
       arcgisMapLegend.respectLayerVisibilityDisabled = true;
+      arcgisMap.view.ui.components = [];
+
+      // Overview map
+      arcgisOverviewMap.map.add(prowLayer_overview);
+      arcgisOverviewMap.map.add(scCenterlineOverView);
+      arcgisOverviewMap.map.add(lotLayer_overview);
+      arcgisOverviewMap.map.add(structureLayer_overview);
+      arcgisOverviewMap.map.add(pileCapLayer_overview);
+      arcgisOverviewMap.map.add(nloLayer_overview);
+      arcgisOverviewMap.map.add(utilityPointLayer_overview);
+      arcgisOverviewMap.map.add(scStationLayer_overview);
+      arcgisOverviewMap.map.add(stripMapLayer_overview);
+
+      disableZooming(arcgisOverviewMap.view);
     }
   });
 
@@ -254,35 +267,6 @@ function MapPanel() {
     }
   }, [contractPackage, component]);
 
-  //******************************************************** */
-  // Overview map
-  //******************************************************** */
-  const [mapOverview, setMapOverview] = useState();
-  const arcgisOverviewMap = document.querySelector("#arcgis-overview-map");
-
-  // Expand (Overview Map)
-  const arcgisOverviewMapExpand = document.querySelector("#overview-expanded");
-
-  useEffect(() => {
-    if (mapOverview) {
-      arcgisMap.view.ui.add(arcgisOverviewMapExpand, "bottom-right");
-      arcgisOverviewMap.map.add(prowLayer_overview);
-      arcgisOverviewMap.map.add(scCenterlineOverView);
-      arcgisOverviewMap.map.add(lotLayer_overview);
-      arcgisOverviewMap.map.add(structureLayer_overview);
-      arcgisOverviewMap.map.add(pileCapLayer_overview);
-      arcgisOverviewMap.map.add(nloLayer_overview);
-      arcgisOverviewMap.map.add(utilityPointLayer_overview);
-      arcgisOverviewMap.map.add(scStationLayer_overview);
-      arcgisOverviewMap.map.add(stripMapLayer_overview);
-
-      // Disable all user navagating actions
-      disableZooming(arcgisOverviewMap.view);
-    }
-  }, [arcgisMap]);
-
-  //************************************************************* *//
-  //************************************************************* *//
   // Feature Selection
   useEffect(() => {
     stripMapLayer.when(() => {
@@ -356,57 +340,52 @@ function MapPanel() {
           setMapView(event.target);
         }}
       >
-        <arcgis-compass position="top-left"></arcgis-compass>
+        <arcgis-compass slot="top-left"></arcgis-compass>
 
         {/* Printer widget */}
-        <arcgis-expand
-          position="top-left"
-          expandedIcon="print"
-          id="print-expand"
-        >
-          <arcgis-print position="top-left"></arcgis-print>
+        <arcgis-expand slot="top-left" expandedIcon="print" id="print-expand">
+          <arcgis-print></arcgis-print>
         </arcgis-expand>
 
         {/* Action Panel */}
         <arcgis-expand
-          position="top-right"
+          slot="top-right"
           mode="floating"
           id="actionpanel-expand"
           expanded
           close-on-esc
         >
-          <arcgis-placement>
+          <div style={{ maxHeight: "200px" }}>
             <ActionPanel id={actionPanelExpanded} />
-          </arcgis-placement>
+          </div>
         </arcgis-expand>
 
         {/* Chart */}
         <arcgis-expand
-          position="top-left"
+          slot="top-left"
           mode="floating"
           expandIcon="graph-pie-slice"
           close-on-esc
           expanded
         >
-          <arcgis-placement>
-            {arcgisMap && <WorkablePileCapChart />}
-          </arcgis-placement>
+          {arcgisMap && <WorkablePileCapChart />}
         </arcgis-expand>
 
         {/* Legend */}
         <arcgis-legend
-          position="bottom-right"
+          slot="bottom-right"
           id="arcgis-map-legend"
         ></arcgis-legend>
 
         {/*------------------------------------------------------------ */}
         {/* Overview Map */}
-        <arcgis-expand id="overview-expanded" position="bottom-right">
-          <arcgis-placement>
+        <arcgis-expand id="overview-expanded" slot="bottom-right">
+          <div>
             <arcgis-map
               style={{
-                width: "82.5vw",
+                width: "75.9vw",
                 height: "40vh",
+                position: "relative",
                 borderStyle: "solid",
                 borderColor: "grey",
                 borderWidth: "1.7px",
@@ -418,11 +397,11 @@ function MapPanel() {
               zoom="16"
               rotation="305"
               center={overViewCenter}
-              onarcgisViewReadyChange={(event) => {
-                setMapOverview(event.target);
-              }}
+              // onarcgisViewReadyChange={(event) => {
+              //   setMapOverview(event.target);
+              // }}
             ></arcgis-map>
-          </arcgis-placement>
+          </div>
         </arcgis-expand>
       </arcgis-map>
     </>
