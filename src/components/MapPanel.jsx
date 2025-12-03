@@ -371,6 +371,51 @@ function MapPanel() {
           {arcgisMap && <WorkablePileCapChart />}
         </arcgis-expand>
 
+        <arcgis-expand
+          slot="top-left"
+          mode="floating"
+          expandIcon="information"
+          close-on-esc
+          // expanded
+        >
+          <div style={{ width: "300px", paddingLeft: "20px" }}>
+            <p
+              style={{
+                fontWeight: "bold",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            >
+              Useful Information
+            </p>
+            This smart map displays two things:
+            <ul>
+              <li>Worakbe pile caps, </li>
+              <li>
+                Obstructing lots, structures, households, utilities, and others.{" "}
+              </li>
+            </ul>
+            <div style={{ paddingLeft: "20px" }}>
+              <li>
+                The source of data:{" "}
+                <b style={{ color: "black" }}>Master list tables</b> provided by
+                the RAP Team and N2 Civil Team.
+              </li>
+              <li>
+                {" "}
+                Frequency of updating information:{" "}
+                <b style={{ color: "black" }}>Weekly</b>.
+              </li>
+              <li>
+                {" "}
+                Note that obstructing utilities only include point features
+                (e.g., utility poles) but not line feature (e.g., telecom line
+                or cables).
+              </li>
+            </div>
+          </div>
+        </arcgis-expand>
+
         {/* Legend */}
         <arcgis-legend
           slot="bottom-right"
