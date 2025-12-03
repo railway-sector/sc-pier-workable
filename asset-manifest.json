@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/sc-pier-workable/static/css/main.063fe0d3.css",
-    "main.js": "/sc-pier-workable/static/js/main.c5071820.js",
+    "main.js": "/sc-pier-workable/static/js/main.df60da93.js",
     "static/js/20623.f7015f52.chunk.js": "/sc-pier-workable/static/js/20623.f7015f52.chunk.js",
     "static/js/34429.48a4c1c2.chunk.js": "/sc-pier-workable/static/js/34429.48a4c1c2.chunk.js",
     "static/js/74965.dd4b078a.chunk.js": "/sc-pier-workable/static/js/74965.dd4b078a.chunk.js",
@@ -621,7 +621,7 @@
     "static/media/09ab0626-bb45-4650-acc8-0182d693df02-hebrew.woff2": "/sc-pier-workable/static/media/09ab0626-bb45-4650-acc8-0182d693df02-hebrew.34f5f4ec364bd2996c4e.woff2",
     "index.html": "/sc-pier-workable/index.html",
     "main.063fe0d3.css.map": "/sc-pier-workable/static/css/main.063fe0d3.css.map",
-    "main.c5071820.js.map": "/sc-pier-workable/static/js/main.c5071820.js.map",
+    "main.df60da93.js.map": "/sc-pier-workable/static/js/main.df60da93.js.map",
     "20623.f7015f52.chunk.js.map": "/sc-pier-workable/static/js/20623.f7015f52.chunk.js.map",
     "34429.48a4c1c2.chunk.js.map": "/sc-pier-workable/static/js/34429.48a4c1c2.chunk.js.map",
     "74965.dd4b078a.chunk.js.map": "/sc-pier-workable/static/js/74965.dd4b078a.chunk.js.map",
@@ -1118,6 +1118,6 @@
   },
   "entrypoints": [
     "static/css/main.063fe0d3.css",
-    "static/js/main.c5071820.js"
+    "static/js/main.df60da93.js"
   ]
 }
