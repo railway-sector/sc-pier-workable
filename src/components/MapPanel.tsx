@@ -46,13 +46,13 @@ import {
 import Extent from "@arcgis/core/geometry/Extent";
 import "@esri/calcite-components/dist/components/calcite-button";
 import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
-import { home_center, home_rotation, overViewCenter } from "../UniqueValues";
+import { home_center, home_rotation, overViewCenter } from "../uniqueValues";
 import ActionPanel from "./ActionPanel";
 import {
   disableZooming,
   queryDefinitionExpression,
   zoomToLayer,
-} from "../Query";
+} from "../query";
 import WorkablePileCapChart from "./WorkablePileCapChart";
 import { MyContext } from "../contexts/MyContext";
 import type { ArcgisMap } from "@arcgis/map-components/dist/components/arcgis-map";
@@ -63,7 +63,7 @@ function MapPanel() {
 
   // Main Map
   const arcgisMap = document.querySelector("#arcgis-map") as ArcgisMap;
-  const [mapView, setMapView] = useState<any>();
+  const [_mapView, setMapView] = useState<any>();
 
   // Overview Map
   const arcgisOverviewMap = document.querySelector(
@@ -74,17 +74,16 @@ function MapPanel() {
   const [selectedStrip, setSelectedStrip] = useState(null);
 
   // Expand (Action Panel)
-  const arcgisActionPanelExpand: any =
-    document.querySelector("actionpanel-expand");
+  const panelExpanded: any = document.querySelector("actionpanel-expand");
   const [actionPanelExpanded, setActionPanelExpanded] = useState(true);
 
   reactiveUtils.when(
-    () => arcgisActionPanelExpand?.expanded === false,
+    () => panelExpanded?.expanded === false,
     () => setActionPanelExpanded(false),
   );
 
   reactiveUtils.when(
-    () => arcgisActionPanelExpand?.expanded === true,
+    () => panelExpanded?.expanded === true,
     () => setActionPanelExpanded(true),
   );
 
@@ -120,8 +119,7 @@ function MapPanel() {
   ];
 
   arcgisMap?.viewOnReady(() => {
-    console.log(mapView);
-    arcgisMap.view.ui.add(arcgisActionPanelExpand, "top-right");
+    arcgisMap.view.ui.add(panelExpanded, "top-right");
     arcgisMap?.map?.add(prowLayer);
     arcgisMap?.map?.add(lotLayer);
     arcgisMap?.map?.add(structureLayer);
@@ -221,51 +219,40 @@ function MapPanel() {
   }, [contractPackage]);
 
   // Feature Selection
-  useEffect(() => {
-    stripMapLayer.when(() => {
-      arcgisMap?.view.on("click", (event) => {
-        arcgisMap?.view.hitTest(event).then((response) => {
-          const result: any = response.results[0];
-          // const title = result?.graphic.layer.title;
-          if (result) {
-            if (result.graphic.layer) {
-              const layer_name = result.graphic.layer.title;
-              if (layer_name === "Strip Map") {
-                // view rotate
-                arcgisMap.view.rotation = 305;
+  stripMapLayer.when(async () => {
+    arcgisMap?.view.on("click", async (event) => {
+      const response = await arcgisMap?.view.hitTest(event);
+      const result: any = response.results[0];
+      if (result) {
+        if (result.graphic.layer) {
+          const layer_name = result.graphic.layer.title;
+          if (layer_name === "Strip Map") {
+            arcgisMap.view.rotation = 305;
 
-                // overview new extent
-                const page_number = result.graphic.attributes["PageNumber"];
-                const angle = result.graphic.attributes["Angle"];
-                stripMapLayer_overview.definitionExpression =
-                  "PageNumber = " + page_number;
+            // overview new extent
+            const attributes = result.graphic.attributes;
+            stripMapLayer_overview.definitionExpression =
+              "PageNumber = " + attributes["PageNumber"];
 
-                // const activeExtent = result?.graphic?.geometry?.extent.clone();
-                const xmax = result.graphic.geometry.extent.xmax;
-                const ymax = result.graphic.geometry.extent.ymax;
-                const xmin = result.graphic.geometry.extent.xmin;
-                const ymin = result.graphic.geometry.extent.ymin;
+            const extent = result.graphic.geometry.extent;
+            const new_extent = new Extent({
+              xmax: extent.xmax,
+              ymax: extent.ymax,
+              xmin: extent.xmin,
+              ymin: extent.ymin,
+              spatialReference: {
+                wkid: 102100,
+              },
+            });
 
-                const new_extent = new Extent({
-                  xmax: xmax,
-                  ymax: ymax,
-                  xmin: xmin,
-                  ymin: ymin,
-                  spatialReference: {
-                    wkid: 102100,
-                  },
-                });
+            arcgisOverviewMap.extent = new_extent;
+            arcgisOverviewMap.rotation = 360 - attributes["Angle"];
+            arcgisOverviewMap.zoom = 17;
 
-                arcgisOverviewMap.extent = new_extent;
-                arcgisOverviewMap.rotation = 360 - angle;
-                arcgisOverviewMap.zoom = 17;
-
-                setSelectedStrip(result.graphic.attributes["OBJECTID"]);
-              }
-            }
+            setSelectedStrip(attributes["OBJECTID"]);
           }
-        });
-      });
+        }
+      }
     });
   });
 

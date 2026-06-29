@@ -10,7 +10,7 @@ import {
   utilityPointLayer,
   utilityPointLayer_overview,
 } from "./layers";
-import { home_rotation } from "./UniqueValues";
+import { home_rotation } from "./uniqueValues";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 
 //---------------------------------------------------------//

@@ -3,7 +3,7 @@ import "../index.css";
 import "@esri/calcite-components/dist/components/calcite-segmented-control";
 import "@esri/calcite-components/dist/components/calcite-segmented-control-item";
 import "@esri/calcite-components/dist/components/calcite-label";
-import { contractPackageNamesList } from "../UniqueValues";
+import { contractPackageNamesList } from "../uniqueValues";
 import { MyContext } from "../contexts/MyContext";
 
 export default function ContractPackageSegmentedList() {

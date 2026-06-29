@@ -32,7 +32,17 @@ import {
   workable_fields,
   workable_piers_uniqueValueInfos,
   yoffset_pierNumber,
-} from "./UniqueValues";
+} from "./uniqueValues";
+import ChartPieSeries from "chart-pie-series";
+
+export const piechart = new ChartPieSeries(
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+);
 
 export const basemapUserDefined = new Basemap({
   baseLayers: [
