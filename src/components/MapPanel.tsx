@@ -44,7 +44,7 @@ import {
   stripMapRenderer,
   zoomToLayer,
 } from "../query";
-import WorkablePileCapChart from "./WorkablePileCapChart";
+import WorkablePileCapChart from "./ChartWorkablePileCap";
 import { MyContext } from "../contexts/MyContext";
 import type { ArcgisMap } from "@arcgis/map-components/dist/components/arcgis-map";
 import type { ArcgisLegend } from "@arcgis/map-components/components/arcgis-legend";

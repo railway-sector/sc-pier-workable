@@ -11,6 +11,7 @@ import {
 } from "../chartSetter";
 import type { ChartResponse } from "../interfaceKeys";
 import { useQuery } from "@tanstack/react-query";
+// import ChartPieSeriesRender from "chart-pie-series-render";
 
 const WorkablePileCapChart = () => {
   const { cpackage, component } = use(MyContext);
@@ -20,7 +21,7 @@ const WorkablePileCapChart = () => {
     (item: any) => item.name === component,
   )[0].field;
 
-  const { data } = useQuery<ChartResponse | any>({
+  const { data, isLoading } = useQuery<ChartResponse | any>({
     queryKey: [cpackage, status_statistic_field, component, pileCapLayer],
     queryFn: async () => {
       piechart.qChart = cpackage === "All" ? "1=1" : `CP = '${cpackage}'`;
@@ -79,6 +80,26 @@ const WorkablePileCapChart = () => {
     legend.data.setAll(pieSeries.dataItems);
 
     // Render chart
+    // const crender = new ChartPieSeriesRender(
+    //   chart,
+    //   pieSeries,
+    //   legend,
+    //   root,
+    //   undefined,
+    //   undefined,
+    //   undefined,
+    //   undefined,
+    //   setChartPanelwidth,
+    //   chartData,
+    //   new_pieSeriesScale,
+    //   "TOTAL PILE CAP",
+    //   new_pieInnerLabelFontSize,
+    //   new_pieInnerValueFontSize,
+    //   pileCapLayer,
+    //   workableStatusArray,
+    // );
+    // crender.chartDataRenderer();
+
     chartRenderer({
       chart: chart,
       pieSeries: pieSeries,
@@ -123,14 +144,15 @@ const WorkablePileCapChart = () => {
           borderWidth: "0.5px",
           borderColor: "grey",
           scrollbarWidth: "none",
+          opacity: isLoading ? 0 : 1,
         }}
       />
 
       {cpackage === "S-01" && (
         <div style={{ padding: 8, fontSize: "0.7rem" }}>
-          Note: A total of 25 pile caps are workable in S-01. Five (5) of them
-          are not yet shown (considering Monoline) on the map pending final
-          design approval
+          Note: S‑01 has 67 pile caps: 20 workable and 47 non‑workable. The
+          chart's discrepancy is due to monoline P‑10 to P‑15, pending design
+          approval and not yet shown on the map.
         </div>
       )}
     </div>
