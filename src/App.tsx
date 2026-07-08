@@ -19,22 +19,15 @@ export function App(): React.JSX.Element {
     authenticate(setLoggedInState, "imUuXLPRZcaMw4v1");
   }, []);
 
-  const [contractPackage, setContractPackage] = useState<any>(
-    contractPackageNamesList[1],
-  );
+  const [cpackage, setCpackage] = useState<any>(contractPackageNamesList[1]);
   const [component, setComponentNames] = useState<any>(componentNamesList[0]);
-  const [chartPanelwidth, setChartPanelwidth] = useState<any>();
 
-  const updateContractpackage = (newContractPackage: any) => {
-    setContractPackage(newContractPackage);
+  const updateCpackage = (newContractPackage: any) => {
+    setCpackage(newContractPackage);
   };
 
   const updateComponent = (newComponent: any) => {
     setComponentNames(newComponent);
-  };
-
-  const updateChartPanelwidth = (newWidth: any) => {
-    setChartPanelwidth(newWidth);
   };
 
   return (
@@ -44,12 +37,10 @@ export function App(): React.JSX.Element {
           <calcite-shell>
             <MyContext
               value={{
-                contractPackage,
+                cpackage,
                 component,
-                chartPanelwidth,
-                updateContractpackage,
+                updateCpackage,
                 updateComponent,
-                updateChartPanelwidth,
               }}
             >
               <QueryClientProvider client={queryClient}>

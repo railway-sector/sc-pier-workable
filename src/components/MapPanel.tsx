@@ -20,18 +20,6 @@ import {
   scStationLayer_overview,
   nloLayer,
   nloLayer_overview,
-  pierNumberLayer_label_all,
-  pierNumberLayer_label_land,
-  pierNumberLayer_label_nlo,
-  pierNumberLayer_label_others,
-  pierNumberLayer_label_struc,
-  pierNumberLayer_label_utility,
-  pile_cap_renderer_all,
-  pile_cap_renderer_land,
-  pile_cap_renderer_nlo,
-  pile_cap_renderer_others,
-  pile_cap_renderer_structure,
-  pile_cap_renderer_utility,
   pileCapLayer,
   pileCapLayer_overview,
   prowLayer,
@@ -42,15 +30,18 @@ import {
   structureLayer_overview,
   utilityPointLayer,
   utilityPointLayer_overview,
+  queryRenderArray,
+  layerInfos,
 } from "../layers";
-import Extent from "@arcgis/core/geometry/Extent";
 import "@esri/calcite-components/dist/components/calcite-button";
 import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 import { home_center, home_rotation, overViewCenter } from "../uniqueValues";
 import ActionPanel from "./ActionPanel";
 import {
+  addLayersToMap,
   disableZooming,
   queryDefinitionExpression,
+  stripMapRenderer,
   zoomToLayer,
 } from "../query";
 import WorkablePileCapChart from "./WorkablePileCapChart";
@@ -59,137 +50,69 @@ import type { ArcgisMap } from "@arcgis/map-components/dist/components/arcgis-ma
 import type { ArcgisLegend } from "@arcgis/map-components/components/arcgis-legend";
 
 function MapPanel() {
-  const { contractPackage, component } = use(MyContext);
+  const { cpackage, component } = use(MyContext);
 
-  // Main Map
   const arcgisMap = document.querySelector("#arcgis-map") as ArcgisMap;
-  const [_mapView, setMapView] = useState<any>();
-
-  // Overview Map
   const arcgisOverviewMap = document.querySelector(
     "#arcgis-overview-map",
   ) as ArcgisMap;
+  const arcgisMapLegend = document.querySelector(
+    "arcgis-legend",
+  ) as ArcgisLegend;
 
-  // Strip Map
-  const [selectedStrip, setSelectedStrip] = useState(null);
+  const [_mapView, setMapView] = useState<any>();
 
-  // Expand (Action Panel)
-  const panelExpanded: any = document.querySelector("actionpanel-expand");
+  //--- Expand (Action Panel)
+  const paneExpand: any = document.querySelector("actionpanel-expand");
   const [actionPanelExpanded, setActionPanelExpanded] = useState(true);
 
   reactiveUtils.when(
-    () => panelExpanded?.expanded === false,
+    () => paneExpand?.expanded === false,
     () => setActionPanelExpanded(false),
   );
 
   reactiveUtils.when(
-    () => panelExpanded?.expanded === true,
+    () => paneExpand?.expanded === true,
     () => setActionPanelExpanded(true),
   );
 
-  // Legend
-  const arcgisMapLegend = document.querySelector(
-    "arcgis-legend",
-  ) as ArcgisLegend;
-  const layerInfos = [
-    {
-      layer: lotLayer,
-      title: "Land",
-    },
-    {
-      layer: structureLayer,
-      title: "Structure",
-    },
-    {
-      layer: nloLayer,
-      title: "NLO (Non-Land Owner)",
-    },
-    {
-      layer: utilityPointLayer,
-      title: "Utility Work (Incomplete)",
-    },
-    {
-      layer: stripMapLayer,
-      title: "Strip Map",
-    },
-    {
-      layer: pileCapLayer,
-      title: "Pile Cap",
-    },
-  ];
-
   arcgisMap?.viewOnReady(() => {
-    arcgisMap.view.ui.add(panelExpanded, "top-right");
-    arcgisMap?.map?.add(prowLayer);
-    arcgisMap?.map?.add(lotLayer);
-    arcgisMap?.map?.add(structureLayer);
-    arcgisMap?.map?.add(pileCapLayer);
-    arcgisMap?.map?.add(nloLayer);
-    arcgisMap?.map?.add(utilityPointLayer);
-    arcgisMap?.map?.add(scStationLayer);
-    arcgisMap?.map?.add(cp_break_lines);
-    arcgisMap?.map?.add(stripMapLayer);
+    arcgisMap.view.ui.add(paneExpand, "top-right");
+    addLayersToMap(arcgisMap?.map, [
+      prowLayer,
+      lotLayer,
+      structureLayer,
+      pileCapLayer,
+      nloLayer,
+      utilityPointLayer,
+      scStationLayer,
+      cp_break_lines,
+      stripMapLayer,
+    ]);
     arcgisMap.hideAttribution = true;
-
     arcgisMapLegend.layerInfos = layerInfos;
     arcgisMapLegend.hideLayersNotInCurrentView = false;
     arcgisMapLegend.ignoreLayerVisibility = true;
 
     // Overview map
-    arcgisOverviewMap?.map?.add(prowLayer_overview);
-    arcgisOverviewMap?.map?.add(scCenterlineOverView);
-    arcgisOverviewMap?.map?.add(lotLayer_overview);
-    arcgisOverviewMap?.map?.add(structureLayer_overview);
-    arcgisOverviewMap?.map?.add(pileCapLayer_overview);
-    arcgisOverviewMap?.map?.add(nloLayer_overview);
-    arcgisOverviewMap?.map?.add(utilityPointLayer_overview);
-    arcgisOverviewMap?.map?.add(scStationLayer_overview);
-    arcgisOverviewMap?.map?.add(stripMapLayer_overview);
+    addLayersToMap(arcgisOverviewMap?.map, [
+      prowLayer_overview,
+      scCenterlineOverView,
+      lotLayer_overview,
+      structureLayer_overview,
+      pileCapLayer_overview,
+      nloLayer_overview,
+      utilityPointLayer_overview,
+      scStationLayer_overview,
+      stripMapLayer_overview,
+    ]);
     arcgisOverviewMap.hideAttribution = true;
     arcgisOverviewMap && disableZooming(arcgisOverviewMap?.view);
   });
 
   useEffect(() => {
-    const queryRenderArray = [
-      {
-        component: "All",
-        renderer: pile_cap_renderer_all,
-        labelInfo: pierNumberLayer_label_all,
-      },
-      {
-        component: "Land",
-        layerv: lotLayer,
-        renderer: pile_cap_renderer_land,
-        labelInfo: pierNumberLayer_label_land,
-      },
-      {
-        component: "Structure",
-        layerv: structureLayer,
-        renderer: pile_cap_renderer_structure,
-        labelInfo: pierNumberLayer_label_struc,
-      },
-      {
-        component: "ISF",
-        layerv: nloLayer,
-        renderer: pile_cap_renderer_nlo,
-        labelInfo: pierNumberLayer_label_nlo,
-      },
-      {
-        component: "Utility",
-        layerv: utilityPointLayer,
-        renderer: pile_cap_renderer_utility,
-        labelInfo: pierNumberLayer_label_utility,
-      },
-      {
-        component: "Others",
-        renderer: pile_cap_renderer_others,
-        labelInfo: pierNumberLayer_label_others,
-      },
-    ];
-
-    const qe = contractPackage === "All" ? "1=1" : `CP = '${contractPackage}'`;
-    const qe2 =
-      contractPackage === "All" ? "1=1" : `GroupId = '${contractPackage}'`;
+    const qe = cpackage === "All" ? "1=1" : `CP = '${cpackage}'`;
+    const qe2 = cpackage === "All" ? "1=1" : `GroupId = '${cpackage}'`;
     stripMapLayer.definitionExpression = `${qe} OR ${qe2}`;
 
     queryDefinitionExpression({
@@ -212,61 +135,19 @@ function MapPanel() {
       componentArray: queryRenderArray,
       componentSelected: component,
     });
-  }, [contractPackage, component]);
+  }, [cpackage, component]);
 
   useEffect(() => {
     zoomToLayer(pileCapLayer, arcgisMap);
-  }, [contractPackage]);
+  }, [cpackage]);
 
-  // Feature Selection
-  stripMapLayer.when(async () => {
-    arcgisMap?.view.on("click", async (event) => {
-      const response = await arcgisMap?.view.hitTest(event);
-      const result: any = response.results[0];
-      if (result) {
-        if (result.graphic.layer) {
-          const layer_name = result.graphic.layer.title;
-          if (layer_name === "Strip Map") {
-            arcgisMap.view.rotation = 305;
-
-            // overview new extent
-            const attributes = result.graphic.attributes;
-            stripMapLayer_overview.definitionExpression =
-              "PageNumber = " + attributes["PageNumber"];
-
-            const extent = result.graphic.geometry.extent;
-            const new_extent = new Extent({
-              xmax: extent.xmax,
-              ymax: extent.ymax,
-              xmin: extent.xmin,
-              ymin: extent.ymin,
-              spatialReference: {
-                wkid: 102100,
-              },
-            });
-
-            arcgisOverviewMap.extent = new_extent;
-            arcgisOverviewMap.rotation = 360 - attributes["Angle"];
-            arcgisOverviewMap.zoom = 17;
-
-            setSelectedStrip(attributes["OBJECTID"]);
-          }
-        }
-      }
-    });
-  });
-
-  // Higlight selected strip
-  useEffect(() => {
-    let highlight: any;
-    selectedStrip &&
-      arcgisMap?.whenLayerView(stripMapLayer).then((layerView) => {
-        highlight = layerView.highlight(selectedStrip);
-        arcgisMap?.view.on("click", () => {
-          highlight.remove();
-        });
-      });
-  }, [selectedStrip]);
+  //--- Overview Map renderer
+  stripMapRenderer(
+    stripMapLayer,
+    stripMapLayer_overview,
+    arcgisMap,
+    arcgisOverviewMap,
+  );
 
   return (
     <arcgis-map

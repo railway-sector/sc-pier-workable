@@ -1,4 +1,4 @@
-import { use, useEffect, useRef } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { MyContext } from "../contexts/MyContext";
 import { chartRenderer } from "../chartRenderer";
 import { piechart, pileCapLayer } from "../layers";
@@ -13,21 +13,17 @@ import type { ChartResponse } from "../interfaceKeys";
 import { useQuery } from "@tanstack/react-query";
 
 const WorkablePileCapChart = () => {
-  const { contractPackage, component, updateChartPanelwidth } = use(MyContext);
+  const { cpackage, component } = use(MyContext);
+  const [_chartPanelwidth, setChartPanelwidth] = useState<any>();
+
   const status_statistic_field = name_to_workable_fields.filter(
     (item: any) => item.name === component,
   )[0].field;
 
   const { data } = useQuery<ChartResponse | any>({
-    queryKey: [
-      contractPackage,
-      status_statistic_field,
-      component,
-      pileCapLayer,
-    ],
+    queryKey: [cpackage, status_statistic_field, component, pileCapLayer],
     queryFn: async () => {
-      piechart.qChart =
-        contractPackage === "All" ? "1=1" : `CP = '${contractPackage}'`;
+      piechart.qChart = cpackage === "All" ? "1=1" : `CP = '${cpackage}'`;
       piechart.layer = pileCapLayer;
       piechart.statusList = workableStatusArray;
       piechart.statusField = status_statistic_field;
@@ -88,7 +84,7 @@ const WorkablePileCapChart = () => {
       pieSeries: pieSeries,
       legend: legend,
       root: root,
-      updateChartPanelwidth: updateChartPanelwidth,
+      updateChartPanelwidth: setChartPanelwidth,
       data: chartData,
       pieSeriesScale: new_pieSeriesScale,
       pieInnerLabel: "TOTAL PILE CAP",
@@ -110,17 +106,34 @@ const WorkablePileCapChart = () => {
 
   return (
     <div
-      id={chartID}
       style={{
+        display: "flex",
+        flexDirection: "column",
         width: "17rem",
-        height: "17rem",
-        backgroundColor: "#E1E1E1",
-        borderStyle: "solid",
-        borderWidth: "0.5px",
-        borderColor: "grey",
         scrollbarWidth: "none",
       }}
-    ></div>
+    >
+      <div
+        id={chartID}
+        style={{
+          // width: "17rem",
+          height: "17rem",
+          backgroundColor: "#E1E1E1",
+          borderStyle: "solid",
+          borderWidth: "0.5px",
+          borderColor: "grey",
+          scrollbarWidth: "none",
+        }}
+      />
+
+      {cpackage === "S-01" && (
+        <div style={{ padding: 8, fontSize: "0.7rem" }}>
+          Note: A total of 25 pile caps are workable in S-01. Five (5) of them
+          are not yet shown (considering Monoline) on the map pending final
+          design approval
+        </div>
+      )}
+    </div>
   );
 }; // End of lotChartgs
 
