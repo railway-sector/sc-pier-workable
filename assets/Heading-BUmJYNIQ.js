@@ -1,0 +1,1 @@
+import{Ma as l,C5 as o,ou as s,DM as c}from"./index-BHEp5LRs.js";function f({level:n,class:a,...t},i){const e=r(n);return l(`h${e}`,{...t,"aria-level":String(e),class:o(s.heading,a),role:"heading"},i)}function r(n){return c(Math.ceil(n),1,6)}function h(n,a=1){return r(n+a)}export{f as i,h as l};
