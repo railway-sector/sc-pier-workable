@@ -30,8 +30,8 @@ import {
   structureLayer_overview,
   utilityPointLayer,
   utilityPointLayer_overview,
-  queryRenderArray,
   layerInfos,
+  pcap_render_q,
 } from "../layers";
 import "@esri/calcite-components/dist/components/calcite-button";
 import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
@@ -119,7 +119,7 @@ function MapPanel() {
       queryExpression: qe,
       featureLayer1: pileCapLayer,
       featureLayers2: [lotLayer, structureLayer, nloLayer, utilityPointLayer],
-      componentArray: queryRenderArray,
+      componentArray: pcap_render_q,
       componentSelected: component,
     });
 
@@ -132,7 +132,7 @@ function MapPanel() {
         nloLayer_overview,
         utilityPointLayer_overview,
       ],
-      componentArray: queryRenderArray,
+      componentArray: pcap_render_q,
       componentSelected: component,
     });
   }, [cpackage, component]);

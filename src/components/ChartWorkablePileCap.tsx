@@ -1,8 +1,7 @@
 import { use, useEffect, useRef, useState } from "react";
 import { MyContext } from "../contexts/MyContext";
-import { chartRenderer } from "../chartRenderer";
-import { piechart, pileCapLayer } from "../layers";
-import { name_to_workable_fields, workableStatusArray } from "../uniqueValues";
+import { pileCapLayer } from "../layers";
+import { cp_f, work_name_to_field, work_status_q } from "../uniqueValues";
 import {
   chartSetter,
   legendSetter,
@@ -11,30 +10,40 @@ import {
 } from "../chartSetter";
 import type { ChartResponse } from "../interfaceKeys";
 import { useQuery } from "@tanstack/react-query";
-// import ChartPieSeriesRender from "chart-pie-series-render";
+import ChartPieSeriesRender from "chart-pie-series-render";
+import { makeQuery, pieChartData, PieChartRenderType } from "../query";
+import ChartPieSeries from "chart-pie-series";
 
 const WorkablePileCapChart = () => {
   const { cpackage, component } = use(MyContext);
+  const arcgisMap = document.querySelector("arcgis-map");
+
   const [_chartPanelwidth, setChartPanelwidth] = useState<any>();
 
-  const status_statistic_field = name_to_workable_fields.filter(
-    (item: any) => item.name === component,
+  const statistic_f = work_name_to_field.filter(
+    (f: any) => f.name === component,
   )[0].field;
 
-  const { data, isLoading } = useQuery<ChartResponse | any>({
-    queryKey: [cpackage, status_statistic_field, component, pileCapLayer],
-    queryFn: async () => {
-      piechart.qChart = cpackage === "All" ? "1=1" : `CP = '${cpackage}'`;
-      piechart.layer = pileCapLayer;
-      piechart.statusList = workableStatusArray;
-      piechart.statusField = status_statistic_field;
-      piechart.statisticField = status_statistic_field;
-      piechart.statisticType = "count";
-      const chartData = await piechart.chartDataPieSeries();
+  //--- Common qValues and qFields for QueryExpressionLayers class
+  const qV = [cpackage === "All" ? "1=1" : cpackage];
+  const qF = [cp_f];
 
-      return {
-        chartData: chartData[0] || [],
-      };
+  const queryc = makeQuery(qV, qF);
+
+  const { data, isLoading } = useQuery<ChartResponse | any>({
+    queryKey: [cpackage, statistic_f, component, pileCapLayer],
+    queryFn: async () => {
+      const chartData = await pieChartData({
+        piechart: new ChartPieSeries(),
+        qChart: queryc,
+        layer: pileCapLayer,
+        statusList: work_status_q,
+        statusField: statistic_f,
+        statisticField: statistic_f,
+        statisticType: "count",
+      });
+
+      return { chartData: chartData[0] || [] };
     },
   });
   const chartData = data?.chartData || [];
@@ -59,11 +68,12 @@ const WorkablePileCapChart = () => {
       root: root,
       categoryField: "category",
       valueField: "value",
-      legendValueText: "{valuePercentTotal.formatNumber('#.')}% ({value})",
+      legendValueText:
+        "[#000000]{valuePercentTotal.formatNumber('#.')}% ({value})",
       radius: 55,
       innerRadius: 35,
       legendLabelText:
-        '{category}[/] ([#000000; bold]{value.formatNumber("#.")}[/]) ',
+        '[#000000]{category}[/][#000000] ([#000000; bold]{value.formatNumber("#.")}[/][#000000])',
     });
     pieSeriesRef.current = pieSeries;
     chart.series.push(pieSeries);
@@ -73,44 +83,32 @@ const WorkablePileCapChart = () => {
       root: root,
       centerX: -16,
       scale: 1.4,
-      // marginTop: -10,
     });
     legendRef.current = legend;
     legend.setAll({ marginTop: -20 });
     legend.data.setAll(pieSeries.dataItems);
 
     // Render chart
-    // const crender = new ChartPieSeriesRender(
-    //   chart,
-    //   pieSeries,
-    //   legend,
-    //   root,
-    //   undefined,
-    //   undefined,
-    //   undefined,
-    //   undefined,
-    //   setChartPanelwidth,
-    //   chartData,
-    //   new_pieSeriesScale,
-    //   "TOTAL PILE CAP",
-    //   new_pieInnerLabelFontSize,
-    //   new_pieInnerValueFontSize,
-    //   pileCapLayer,
-    //   workableStatusArray,
-    // );
-    // crender.chartDataRenderer();
-
-    chartRenderer({
-      chart: chart,
+    PieChartRenderType({
+      render: new ChartPieSeriesRender(),
+      chart,
       pieSeries: pieSeries,
-      legend: legend,
-      root: root,
+      legend,
+      root,
+      qChart: queryc,
+      q2Expression: undefined,
+      status_field: statistic_f,
+      view: arcgisMap?.view,
       updateChartPanelwidth: setChartPanelwidth,
       data: chartData,
-      pieSeriesScale: new_pieSeriesScale,
-      pieInnerLabel: "TOTAL PILE CAP",
-      pieInnerLabelFontSize: new_pieInnerLabelFontSize,
-      pieInnerValueFontSize: new_pieInnerValueFontSize,
+      seriesScale: new_pieSeriesScale,
+      innerLabel: "TOTAL PILE CAP",
+      innerLabelFontSize: new_pieInnerLabelFontSize,
+      innerValueFontSize: new_pieInnerValueFontSize,
+      layer: pileCapLayer,
+      statusArray: work_status_q,
+      bkg_color_switch: true,
+      seriesFillHash: undefined,
     });
 
     pieSeries.appear(1000, 100);

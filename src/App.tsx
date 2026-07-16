@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "@arcgis/map-components/dist/components/arcgis-map";
 import "@arcgis/map-components/components/arcgis-map";
 import "@arcgis/map-components/components/arcgis-zoom";
 import "@arcgis/map-components/components/arcgis-legend";
 import "@esri/calcite-components/dist/components/calcite-shell";
-import { contractPackageNamesList, componentNamesList } from "./uniqueValues";
+import { cpackages, work_name_to_field } from "./uniqueValues";
 import MapPanel from "./components/MapPanel";
 import AsOfDatePanel from "./components/AsOfDatePanel";
 import { MyContext } from "./contexts/MyContext";
@@ -15,20 +15,23 @@ const queryClient = new QueryClient();
 
 export function App(): React.JSX.Element {
   const [loggedInState, setLoggedInState] = useState<boolean>(false);
+
   useEffect(() => {
     authenticate(setLoggedInState, "imUuXLPRZcaMw4v1");
   }, []);
 
-  const [cpackage, setCpackage] = useState<any>(contractPackageNamesList[1]);
-  const [component, setComponentNames] = useState<any>(componentNamesList[0]);
+  const [cpackage, setCpackage] = useState<any>(cpackages[1]);
+  const [component, setComponentNames] = useState<any>(
+    work_name_to_field[0].name,
+  );
 
-  const updateCpackage = (newContractPackage: any) => {
+  const updateCpackage = useCallback((newContractPackage: any) => {
     setCpackage(newContractPackage);
-  };
+  }, []);
 
-  const updateComponent = (newComponent: any) => {
+  const updateComponent = useCallback((newComponent: any) => {
     setComponentNames(newComponent);
-  };
+  }, []);
 
   return (
     <>

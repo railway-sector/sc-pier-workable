@@ -5,11 +5,7 @@ import ComponentSegmentedList from "./ComponentContext";
 const ActionPanel = (props: any) => {
   return (
     <>
-      <div
-        style={{
-          display: props.id === true ? "block" : "none",
-        }}
-      >
+      <div style={{ display: props.id === true ? "block" : "none" }}>
         <calcite-card style={{ fontSize: "0.5rem" }}>
           <ContractPackageSegmentedList />
           <ComponentSegmentedList />
