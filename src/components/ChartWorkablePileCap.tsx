@@ -25,7 +25,7 @@ const WorkablePileCapChart = () => {
   )[0].field;
 
   //--- Common qValues and qFields for QueryExpressionLayers class
-  const qV = [cpackage === "All" ? "1=1" : cpackage];
+  const qV = [cpackage === "All" ? undefined : cpackage];
   const qF = [cp_f];
 
   const queryc = makeQuery(qV, qF);
