@@ -12,15 +12,10 @@ import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol";
 //----------------------------------------------//
 //              portalItem                      //
 //----------------------------------------------//
-const portalItem_url = {
-  url: "https://gis.railway-sector.com/portal",
-};
+const portalItem_url = { url: "https://gis.railway-sector.com/portal" };
 
 export const portalItems = (id: any) => {
-  return {
-    id: id,
-    portal: portalItem_url,
-  };
+  return { id: id, portal: portalItem_url };
 };
 
 export type statisticsType = "count" | "sum";
@@ -123,10 +118,7 @@ export const cp_brkline_label = new LabelClass({
 });
 
 export const cp_brkline_renderer = new SimpleRenderer({
-  symbol: new SimpleLineSymbol({
-    color: "#4ce600",
-    width: "2px",
-  }),
+  symbol: new SimpleLineSymbol({ color: "#4ce600", width: "2px" }),
 });
 
 //--- PROW LAYER ---//

@@ -1,15 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import {
-  dateTable,
-  lotLayer,
-  lotLayer_overview,
-  nloLayer,
-  nloLayer_overview,
-  structureLayer,
-  structureLayer_overview,
-  utilityPointLayer,
-  utilityPointLayer_overview,
-} from "./layers";
+import { dateTable } from "./layers";
 import { home_rotation } from "./uniqueValues";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import Extent from "@arcgis/core/geometry/Extent";
@@ -365,17 +355,9 @@ export function disableZooming(view: any) {
 // Zoom to layer
 export function zoomToLayer(layer: any, view: any) {
   return layer.queryExtent().then((response: any) => {
-    view
-      ?.goTo(response.extent, {
-        //response.extent
-        speedFactor: 2,
-      })
-      .catch((error: any) => {
-        if (error.name !== "AbortError") {
-          // console.error(error);
-          console.log("error");
-        }
-      });
+    view?.goTo(response.extent, { speedFactor: 2 }).catch((error: any) => {
+      if (error.name !== "AbortError") console.log("error");
+    });
   });
 }
 
@@ -397,15 +379,3 @@ export function homeExtentRenderer(view: any) {
   view.scale = 577790.5542885;
   view.center = home_center;
 }
-
-export const layersVisibleFalse = () => {
-  lotLayer.visible = false;
-  structureLayer.visible = false;
-  nloLayer.visible = false;
-  utilityPointLayer.visible = false;
-
-  lotLayer_overview.visible = false;
-  structureLayer_overview.visible = false;
-  nloLayer_overview.visible = false;
-  utilityPointLayer_overview.visible = false;
-};
