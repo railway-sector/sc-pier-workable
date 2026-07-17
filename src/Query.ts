@@ -178,6 +178,9 @@ export async function stripMapRenderer(
             spatialReference: { wkid: 102100 },
           });
 
+          //--- Wait until overviewMap is ready
+          if (!overviewMap) return;
+
           overviewMap.extent = new_extent;
           overviewMap.rotation = 360 - attributes["Angle"];
           overviewMap.zoom = 17;
