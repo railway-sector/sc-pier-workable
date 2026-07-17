@@ -27,7 +27,6 @@ import { MyContext } from "../contexts/MyContext";
 import type { ArcgisMap } from "@arcgis/map-components/dist/components/arcgis-map";
 
 const MapOverview = () => {
-  console.log("MapOverview is fired.");
   const { cpackage, component } = use(MyContext);
   const [overviewReady, setOverviewReady] = useState<boolean>(false);
 
@@ -49,7 +48,6 @@ const MapOverview = () => {
     if (!overviewReady || !arcgisMap || !overviewMap) return;
 
     //--- Add overview map layers
-    console.log("layers are added.");
     addLayersToMap(overviewMap?.map, [
       prowLayer_overview,
       scCenterlineOverView,
