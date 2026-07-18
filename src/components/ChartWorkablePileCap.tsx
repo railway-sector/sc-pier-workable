@@ -11,7 +11,7 @@ import {
 import type { ChartResponse } from "../interfaceKeys";
 import { useQuery } from "@tanstack/react-query";
 import ChartPieSeriesRender from "chart-pie-series-render";
-import { makeQuery, pieChartData, PieChartRenderType } from "../query";
+import { makeQuery, pieChartData, PieChartRender } from "../query";
 import ChartPieSeries from "chart-pie-series";
 
 const WorkablePileCapChart = memo(() => {
@@ -92,7 +92,7 @@ const WorkablePileCapChart = memo(() => {
     legend.data.setAll(pieSeries.dataItems);
 
     // Render chart
-    PieChartRenderType({
+    PieChartRender({
       render: new ChartPieSeriesRender(),
       chart,
       pieSeries: pieSeries,

@@ -77,8 +77,8 @@ function MapPanel() {
       queryExpression: qe,
       featureLayer1: pileCapLayer,
       featureLayers2: [lotLayer, structureLayer, nloLayer, utilityPointLayer],
-      componentArray: pcap_render_q,
-      componentSelected: component,
+      array: pcap_render_q,
+      selectedItem: component,
     });
   }, [cpackage, component]);
 

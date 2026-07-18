@@ -17,7 +17,7 @@ export function addLayersToMap(map: any, layersList: any[]) {
 //---------------------------------------------//
 //               Pie chart                     //
 //---------------------------------------------//
-// 'piechart' = constant declared from class ChartPieSeries in layers.ts
+// 'piechart' = a new empty class ChartPieSeries
 interface pieChartDataType {
   piechart: any;
   qChart: any;
@@ -36,18 +36,20 @@ export async function pieChartData({
   statisticField,
   statisticType,
 }: pieChartDataType) {
-  piechart.qChart = qChart.queryExpression();
-  piechart.layer = layer;
-  piechart.statusList = statusList;
-  piechart.statusField = statusField;
-  piechart.statisticField = statisticField;
-  piechart.statisticType = statisticType;
-
+  // piechart.layer = layer, .....
+  Object.assign(piechart, {
+    qChart: qChart.queryExpression(),
+    layer,
+    statusList,
+    statusField,
+    statisticField,
+    statisticType,
+  });
   return await piechart.chartDataPieSeries();
 }
 
 //--- Chart Render helper function
-// `pieChartRender` function helps to assign parameter names to class `ChartPieSeriesRender`
+// 'render' = a new empty class ChartPieSeriesRender
 interface PieChartRenderType {
   render: any | null; // the first instance of new ChartPieSeriesRender
   chart: any; // amChart
@@ -76,46 +78,9 @@ interface StatusQueryItem {
   color: string;
 }
 
-export async function PieChartRenderType({
-  render,
-  chart,
-  pieSeries,
-  legend,
-  root,
-  qChart,
-  q2Expression,
-  status_field,
-  view,
-  updateChartPanelwidth,
-  data,
-  seriesScale,
-  innerLabel,
-  innerLabelFontSize,
-  innerValueFontSize,
-  layer,
-  statusArray,
-  bkg_color_switch,
-  seriesFillHash,
-}: PieChartRenderType) {
-  render.chart = chart;
-  render.pieSeries = pieSeries;
-  render.legend = legend;
-  render.root = root;
-  render.qChart = qChart;
-  render.q2Expression = q2Expression;
-  render.status_field = status_field;
-  render.view = view;
-  render.updateChartPanelwidth = updateChartPanelwidth;
-  render.data = data;
-  render.seriesScale = seriesScale;
-  render.innerLabel = innerLabel;
-  render.innerLabelFontSize = innerLabelFontSize;
-  render.innerValueFontSize = innerValueFontSize;
-  render.layer = layer;
-  render.statusArray = statusArray;
-  render.bkg_color_switch = bkg_color_switch;
-  render.seriesFillHash = seriesFillHash;
-
+export async function PieChartRender({ render, ...props }: PieChartRenderType) {
+  // render.chart = chart, render.legend = legend,....
+  Object.assign(render, props);
   return await render.chartDataRenderer();
 }
 
@@ -147,47 +112,40 @@ export async function stripMapRenderer(
   map?.view.on("click", async (event: any) => {
     const response = await map?.view.hitTest(event);
     const result: any = response.results[0];
+    const layer_name = result?.graphic?.layer?.title;
 
-    if (result) {
-      if (result.graphic.layer) {
-        const layer_name = result.graphic.layer.title;
-        if (layer_name === "Strip Map") {
-          map.view.rotation = 305;
+    if (layer_name !== "Strip Map") return;
+    map.view.rotation = 305;
 
-          // overview new extent
-          const attributes = result.graphic.attributes;
-          overviewLayer.definitionExpression =
-            "PageNumber = " + attributes["PageNumber"];
+    // overview new extent
+    const attrs = result.graphic.attributes;
+    overviewLayer.definitionExpression = `PageNumber = ${attrs["PageNumber"]}`;
 
-          const extent = result.graphic.geometry.extent;
-          const new_extent = new Extent({
-            xmax: extent.xmax,
-            ymax: extent.ymax,
-            xmin: extent.xmin,
-            ymin: extent.ymin,
-            spatialReference: { wkid: 102100 },
-          });
+    const { extent } = result.graphic.geometry;
+    const new_extent = new Extent({
+      xmax: extent.xmax,
+      ymax: extent.ymax,
+      xmin: extent.xmin,
+      ymin: extent.ymin,
+      spatialReference: { wkid: 102100 },
+    });
 
-          //--- Wait until overviewMap is ready
-          if (!overviewMap) return;
+    //--- Wait until overviewMap is ready
+    if (!overviewMap) return;
 
-          overviewMap.extent = new_extent;
-          overviewMap.rotation = 360 - attributes["Angle"];
-          overviewMap.zoom = 17;
+    overviewMap.extent = new_extent;
+    overviewMap.rotation = 360 - attrs["Angle"];
+    overviewMap.zoom = 17;
 
-          //--- Highlight selected strip
-          let highlight: any;
-          const selectedStrip = attributes["OBJECTID"];
-          if (selectedStrip) {
-            const layerView = await map?.whenLayerView(layer);
-            highlight = layerView.highlight(selectedStrip);
-            map?.view.on("click", () => {
-              highlight.remove();
-            });
-          }
-        }
-      }
-    }
+    //--- Highlight selected strip
+    const strips = attrs["OBJECTID"];
+    if (!strips) return;
+
+    const layerView = await map?.whenLayerView(layer);
+    const highlight = layerView.highlight(strips);
+    map?.view.on("click", () => {
+      highlight.remove();
+    });
   });
 }
 
@@ -200,66 +158,41 @@ interface queryDefinitionExpressionType {
   featureLayers2?:
     | [FeatureLayer, FeatureLayer?, FeatureLayer?, FeatureLayer?, FeatureLayer?]
     | any;
-  componentArray?: any;
-  componentSelected?: any;
+  array?: any;
+  selectedItem?: any;
 }
 
 export function queryDefinitionExpression({
   queryExpression,
   featureLayer1,
   featureLayers2,
-  componentArray,
-  componentSelected,
+  array,
+  selectedItem,
 }: queryDefinitionExpressionType) {
-  const find = componentArray.find(
-    (item: any) => item.component === componentSelected,
-  );
-  const new_renderer = find?.renderer;
-  const new_labelInfo = find?.labelInfo;
-  const new_visible_layer = find?.layerv;
+  const selected = array?.find((f: any) => f.component === selectedItem);
 
   // pielcap layer
   featureLayer1.definitionExpression = queryExpression;
-  featureLayer1.renderer = new_renderer;
-  featureLayer1.labelingInfo = new_labelInfo;
+  featureLayer1.renderer = selected?.renderer;
+  featureLayer1.labelingInfo = selected?.labelInfo;
 
   // definition Expression
   featureLayers2.map((layer: any) => {
     layer.definitionExpression = queryExpression;
-  });
 
-  // other layers
-  if (componentSelected === "All") {
-    featureLayers2.map((layer: any) => {
+    if (selectedItem === "All") {
       layer.visible = true;
-    });
-  } else if (componentSelected === "Others") {
-    featureLayers2.map((layer: any) => {
+    } else if (selectedItem === "Others") {
       layer.visible = false;
-    });
-  } else {
-    featureLayers2.map((layer: any) => {
-      if (layer.title === new_visible_layer.title) {
-        layer.visible = true;
-      } else {
-        layer.visible = false;
-      }
-    });
-  }
+    } else {
+      layer.visible = layer.title === selected?.layerv?.title;
+    }
+  });
 }
 
 //------------------------------------------------//
 //            Update As-of date                   //
 //------------------------------------------------//
-export function lastDateOfMonth(date: Date) {
-  const old_date = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  const year = old_date.getFullYear();
-  const month = old_date.getMonth() + 1;
-  const day = old_date.getDate();
-  const final_date = `${year}-${month}-${day}`;
-
-  return final_date;
-}
 
 // Updat date
 export function yearMonthDay(date: Date) {
@@ -275,7 +208,7 @@ export function toAsofdate(date: Date) {
   const { year, day } = yearMonthDay(date);
   const cmonth = date?.toLocaleString("en-US", { month: "long" });
 
-  return year <= 1970 ? "" : `${cmonth} ${day}, ${year}`;
+  return `${cmonth} ${day}, ${year}`;
 }
 
 export async function dateUpdate(category: string) {
@@ -285,63 +218,53 @@ export async function dateUpdate(category: string) {
 
   const { features } = await dateTable.queryFeatures(query);
   return features.map(({ attributes }: any) => {
-    const date = new Date(attributes.date);
-    const asofdate = toAsofdate(date);
-
-    return asofdate;
+    return toAsofdate(new Date(attributes.date));
   });
 }
 
 //------------------------------------------------//
 //            Overview Map constraint             //
 //------------------------------------------------//
+const PROHIBITED_ZOOM_KEYS = new Set([
+  "+",
+  "-",
+  "Shift",
+  "_",
+  "=",
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowRight",
+  "ArrowLeft",
+]);
+
 export function disableZooming(view: any) {
   view.popup.dockEnabled = true;
-
-  // Removes the zoom action on the popup
   view.popup.actions = [];
+  view.ui.components = [];
 
   // stops propagation of default behavior when an event fires
   function stopEvtPropagation(event: any) {
     event.stopPropagation();
   }
 
-  // exlude the zoom widget from the default UI
-  // view.ui.components = [];
-  view.ui.components = [];
+  const blockedInteractions: [string, string[]?][] = [
+    ["mouse-wheel"],
+    ["double-click"],
+    ["double-click", ["Control"]],
+    ["drag"],
+    ["drag", ["Shift"]],
+    ["drag", ["Shift", "Control"]],
+  ];
 
-  // disable mouse wheel scroll zooming on the overView
-  view?.on("mouse-wheel", stopEvtPropagation);
-
-  // disable zooming via double-click on the overView
-  view.on("double-click", stopEvtPropagation);
-
-  // disable zooming out via double-click + Control on the overView
-  view.on("double-click", ["Control"], stopEvtPropagation);
-
-  // disables pinch-zoom and panning on the overView
-  view.on("drag", stopEvtPropagation);
-
-  // disable the overView's zoom box to prevent the Shift + drag
-  // and Shift + Control + drag zoom gestures.
-  view.on("drag", ["Shift"], stopEvtPropagation);
-  view.on("drag", ["Shift", "Control"], stopEvtPropagation);
+  blockedInteractions.forEach(([eventName, modifiers]) => {
+    modifiers
+      ? view.on(eventName, modifiers)
+      : view.on(eventName, stopEvtPropagation);
+  });
 
   // prevents zooming with the + and - keys
   view.on("key-down", (event: any) => {
-    const prohibitedKeys = [
-      "+",
-      "-",
-      "Shift",
-      "_",
-      "=",
-      "ArrowUp",
-      "ArrowDown",
-      "ArrowRight",
-      "ArrowLeft",
-    ];
-    const keyPressed = event.key;
-    if (prohibitedKeys.indexOf(keyPressed) !== -1) {
+    if (PROHIBITED_ZOOM_KEYS.has(event.key)) {
       event.stopPropagation();
     }
   });
