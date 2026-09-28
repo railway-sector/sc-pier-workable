@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { dateTable } from "./layers";
-import { home_rotation } from "./uniqueValues";
+import { home_rotation, type statisticsType } from "./uniqueValues";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import Extent from "@arcgis/core/geometry/Extent";
+import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
+import Query from "@arcgis/core/rest/support/Query";
 
 //---------------------------------------------------------//
 //                 Add Layers to Map                      //
@@ -186,6 +188,35 @@ export function disableZooming(view: any) {
   return view;
 }
 
+//--- Separate calculation
+interface FieldStatisticType {
+  where: any;
+  layer: any;
+  statisticField: any;
+  statisticType: statisticsType;
+}
+
+export async function fieldStatistic({
+  where,
+  layer,
+  statisticField,
+  statisticType,
+}: FieldStatisticType) {
+  //--- Query
+  const query = new Query({
+    where: where,
+    outStatistics: [
+      new StatisticDefinition({
+        onStatisticField: statisticField,
+        outStatisticFieldName: "statsCollect",
+        statisticType,
+      }),
+    ],
+  });
+
+  const response = await layer?.queryFeatures(query);
+  return response.features[0].attributes.statsCollect;
+}
 //------------------------------------------------//
 //                 Other functions                //
 //------------------------------------------------//
