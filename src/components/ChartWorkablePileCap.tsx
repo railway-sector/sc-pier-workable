@@ -203,13 +203,13 @@ const WorkablePileCapChart = memo(() => {
         }}
       />
 
-      {cpackage === "S-01" && (
+      {/* {cpackage === "S-01" && (
         <div style={{ padding: 8, fontSize: "0.7rem" }}>
           Note: S‑01 has 67 pile caps: 20 workable and 47 non‑workable. The
           chart's discrepancy is due to monoline P‑10 to P‑15, pending design
           approval and not yet shown on the map.
         </div>
-      )}
+      )} */}
     </div>
   );
 }); // End of lotChartgs
